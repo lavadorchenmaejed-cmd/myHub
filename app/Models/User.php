@@ -7,6 +7,12 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use App\Models\Profile;
+use App\Models\Pet;
+use App\Models\Business;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class User extends Authenticatable
 {
@@ -47,4 +53,25 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    
+    public function profile(): HasOne 
+    {
+        return $this->hasOne(Profile::class, 'user_id');
+    }
+
+    public function pets(): HasMany
+    {
+        return $this->hasMany(Pet::class, 'user_id');
+    }
+
+
+    public function businesses(): BelongsToMany
+    {
+        return $this->belongsToMany(Business::class, 'business_user')
+            ->withPivot('active')
+            ->withTimestamps();
+    }
+
+
 }

@@ -1,5 +1,5 @@
 <x-layout>
-    <h2>Welcome!</h2>
+    <h1>Log In</h1>
 
     <form method="POST" action="{{ route('login.attempt') }}">
         @csrf
@@ -7,7 +7,7 @@
         <input type="text" name="username" placeholder="Username" required>
         <input type="password" name="password" placeholder="Password" required>
 
-        <button type="submit">Log In</button>
+        <button type="submit" id="login">Log In</button>
     </form>
 
     <div class="form-footer">
