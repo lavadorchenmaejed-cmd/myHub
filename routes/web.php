@@ -1,6 +1,10 @@
+
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
+
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\PetController;
@@ -8,43 +12,50 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BusinessController;
 
 
-Route::get('/',function(){
-    return view('login');
-})-> name('login');
 
-Route::post('login', LoginController::class)
-->middleware('throttle:5,1')
-->name('login.attempt');
+Route::middleware('guest')->group(function () {
 
-Route::view('dashboard', 'dashboard')
-->middleware('auth')
-->name('dashboard');
+    Route::get('/', function () {
+        return redirect()->route('login');
+    });
 
-Route::post('logout',function(){
-    Auth::guard('web')->logout();
+    Route::get('/login', function () {
+        return view('login');
+    })->name('login');
 
-    Session::invalidate();
-    Session::regenerateToken();
+    Route::post('/login', LoginController::class)
+        ->middleware('throttle:5,1')
+        ->name('login.attempt');
 
-    return redirect('/');
+    Route::get('/register', function () {
+        return view('register');
+    })->name('register');
 
-})->name('logout');
+    Route::post('/register', [RegisterController::class, 'store'])
+        ->name('register.store');
+});
 
-Route::view('register','register')->name('register');
 
-Route::post('register', RegisterController::class)->name('register.store');
 
-Route::view('login','login')->name('login');
+Route::middleware('auth')->group(function () {
 
-Route::post('pet', [PetController::class, 'store'])
-    ->middleware('auth')
-    ->name('pet.store');
+    Route::view('/dashboard', 'dashboard')->name('dashboard');
 
-Route::post('profile', [ProfileController::class, 'store'])
-    ->middleware('auth')
-    ->name('profile.store');
+    Route::post('/logout', function () {
+        Auth::guard('web')->logout();
 
-Route::post('business', [BusinessController::class, 'store'])
-    ->middleware('auth')
-    ->name('business.store');
+        Session::invalidate();
+        Session::regenerateToken();
 
+        return redirect()->route('login');
+    })->name('logout');
+
+    Route::post('/pet', [PetController::class, 'store'])
+        ->name('pet.store');
+
+    Route::post('/profile', [ProfileController::class, 'store'])
+        ->name('profile.store');
+
+    Route::post('/business', [BusinessController::class, 'store'])
+        ->name('business.store');
+});
